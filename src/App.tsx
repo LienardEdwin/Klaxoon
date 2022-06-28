@@ -1,8 +1,22 @@
 import React, {useCallback, useEffect, useState} from 'react';
 import './App.css';
 import Card from "./components/Card";
+import {getBookMark} from "./API/api";
 
+type Response = {
+    results: []
+}
 
+type Data = {
+    title: string
+    url: string
+    thumbnail_url: string
+    author_name: string
+    upload_date: string
+    provider_name: string
+    width: string
+    height: string
+}
 
 function App() {
     const [inputValue, setInputValue] = useState<string>('')
@@ -11,42 +25,46 @@ function App() {
     const [listBookMark, setListBookMark] = useState<string[]>([])
 
     useEffect(() =>{
-        let localBookMark = localStorage.getItem('listBookMark')
-        if(localBookMark){
-            let result = JSON.parse(localBookMark)
-            setListBookMark([...listBookMark, ...result])
-        }
+        handleLifeCyle()
     }, [])
 
     useEffect(() => {
         if(inputValue !== ''){
             localStorage.setItem('listBookMark', JSON.stringify(listBookMark))
-        }
-        if(listBookMark.length > 1){
-            listBookMark.map((el) =>{
-                handleSearch(el)
+        }else{
+            listBookMark.map((id:string, index) => {
+                handleSearch(id)
             })
         }
     }, [listBookMark])
 
-    async function handleSearch(param?: string) {
-        let url = `http://noembed.com/embed?url=${param ? param : inputValue}`
-        try {
-            const response = await fetch(url)
-            const data = await response.json()
-            if(data.length === 0){
-                setDataBooks(data)
-            }else{
-                setDataBooks((book: any) => [...book, data])
-            }
-        } catch (err) {
-            setError(true)
+    const handleLifeCyle = () => {
+        let localBookMark = localStorage.getItem('listBookMark') || ''
+        if(localBookMark.length > 0){
+            let result = JSON.parse(localBookMark)
+            setListBookMark([...listBookMark, ...result])
+        }
+    }
+
+    function handleSearch(param?: string) {
+        if(inputValue === ''){
+            getBookMark(param ? param : inputValue).then((data:Response) => {
+                dataBooks.push(data)
+                let newDataBooks = [...dataBooks]
+                setDataBooks(newDataBooks)
+            })
         }
     }
 
     const handle = () => {
         setListBookMark([...listBookMark, inputValue])
-        handleSearch()
+        getBookMark(inputValue).then((data:Response) => setDataBooks([...dataBooks, data]))
+    }
+
+    const removeBookMark = (urlToRemove: string) =>{
+        const listBookUpdate = listBookMark.filter( (element:any) => element !== urlToRemove )
+        localStorage.setItem("listBookMark", JSON.stringify(listBookUpdate))
+        //handleLifeCyle()
     }
 
 
@@ -68,10 +86,9 @@ function App() {
               }
           </ul>
           {
-              dataBooks && dataBooks.map((el:{}) =>(
-                  <Card data={el}/>
+              dataBooks && dataBooks.map((el:Data, index: number) =>(
+                  <Card key={index} data={el} removeBookMark={removeBookMark}/>
               ))
-
           }
       </header>
     </div>
