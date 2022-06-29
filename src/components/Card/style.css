@@ -18,3 +18,22 @@
  background-size: cover;
  background-position: center;
 }
+
+.reduceUrl{
+ width: 50%;
+ overflow: hidden;
+ white-space: pre;
+ text-overflow: ellipsis;
+}
+
+.buttonSubmit{
+ background: #2B2D2F;
+ height: 40px;
+ width: 100px;
+ text-align: center;
+ color: #FFFF;
+ margin: 10px;
+ border-radius: 10px;
+ font-weight: bold;
+ cursor: pointer;
+}

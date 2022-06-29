@@ -1,38 +1,38 @@
 import React from "react";
+import {convertDateTime, convertDate} from "../../helpers/convertDateTime";
 import './style.css'
 
 type Props = {
-    removeBookMark: (param: string) => void
-    data: {
-        title: string
-        url: string
-        thumbnail_url: string
-        author_name: string
-        upload_date: string
-        provider_name: string
-        width: string
-        height: string
-    }
-
+    removeBookMark: (id: string) => void
+    bookMark: BookMark
 }
 
-export default function Card ({removeBookMark, data}:Props){
-
-    const bookMark= data
+export default function Card ({removeBookMark, bookMark}:Props){
 
     return(
         <div key={bookMark.title} className={'cardContainer'}>
             <h3>Title: {bookMark.title}</h3>
-            <p>Url: <a href={bookMark.url}>{bookMark.url}</a></p>
+            <p className={'reduceUrl'}>Url: <a href={bookMark.url}>{bookMark.url}</a></p>
             <div className={'poster'} style={{backgroundImage: `url(${bookMark.thumbnail_url})`}}/>
             <p>Author: {bookMark.author_name}</p>
-            <p>Upload Date: {bookMark.upload_date}</p>
             {
-                bookMark.provider_name && bookMark.provider_name === 'Flickr' && (
-                    <p>{bookMark.width} x {bookMark.height}</p>
+                bookMark.upload_date && (
+                    <p>{`Upload Date: ${convertDate(bookMark.upload_date)}`}</p>
                 )
             }
-            <button onClick={()=>removeBookMark(bookMark.url)}>Remove</button>
+            {
+                bookMark.duration && (
+                    <p>Duration : {convertDateTime(bookMark.duration)}</p>
+                )
+            }
+            {
+                bookMark.provider_name && bookMark.provider_name === 'Flickr' && (
+                    <>
+                        <p>{bookMark.width} x {bookMark.height}</p>
+                    </>
+                )
+            }
+            <button className={'buttonSubmit'} onClick={()=>removeBookMark(bookMark.url)}>Remove</button>
         </div>
     )
 }
